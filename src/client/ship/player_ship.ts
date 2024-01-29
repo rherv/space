@@ -67,8 +67,8 @@ export class PlayerShip {
         };
 
         this.rotationVector.x = ( - Input.getKey("w") + Input.getKey("s") );
-        this.rotationVector.y = ( - Input.getKey("d") + Input.getKey("a") );
-        this.rotationVector.z = ( - Input.getKey("e") + Input.getKey("q") );
+        this.rotationVector.y = ( - Input.getKey("e") + Input.getKey("q") );
+        this.rotationVector.z = ( - Input.getKey("d") + Input.getKey("a") );
 
         for (const key in binds) {
             if(Input.getKey(key)) {
