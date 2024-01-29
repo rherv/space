@@ -13,11 +13,14 @@ export class PlayerShip {
     material: THREE.MeshLambertMaterial;
     command_module: THREE.Mesh;
     physicsBody: PhysicsRotationBody;
+    tmpQuaternion: THREE.Quaternion;
+    rotationVector: THREE.Vector3; // = new Vector3( 0, 0, 0 );
 
     SAS: boolean;
 
     constructor() {
         this.rotation_input = { x: 0.0, y: 0.0, z: 0.0 };
+        this.rotationVector = new THREE.Vector3(0, 0, 0);
 
         this.geometry = new THREE.CylinderGeometry( 
             0.5, // radius top
@@ -31,6 +34,8 @@ export class PlayerShip {
             //wireframe: true,
         })
         this.material.flatShading = true
+
+        this.tmpQuaternion = new THREE.Quaternion();
 
         this.command_module = new THREE.Mesh(this.geometry, this.material);
         this.command_module.castShadow = true; //default is false
@@ -61,6 +66,10 @@ export class PlayerShip {
             "e" : { x: 0,       y: -0.02,   z: 0     },
         };
 
+        this.rotationVector.x = ( - Input.getKey("w") + Input.getKey("s") );
+        this.rotationVector.y = ( - Input.getKey("d") + Input.getKey("a") );
+        this.rotationVector.z = ( - Input.getKey("e") + Input.getKey("q") );
+
         for (const key in binds) {
             if(Input.getKey(key)) {
                 this.rotation_input.x += binds[key].x;
@@ -86,16 +95,30 @@ export class PlayerShip {
     }
 
     tick(dt: number) {
+        /*
         this.physicsBody.applyTorque(
             new THREE.Vector3(this.rotation_input.x, this.rotation_input.y, this.rotation_input.z)
         );
+        */
 
-        this.physicsBody.update(dt);
-
-        const rotationMatrix = this.physicsBody.getRotationMatrix();
-        this.command_module.setRotationFromMatrix(rotationMatrix);
+        //this.physicsBody.update(dt);
         
-        Navigation.update(rotationMatrix, this.SAS);
+        // Update plane rotation based on controls
+
+        this.tmpQuaternion.set(
+            this.rotationVector.x * 0.1 * dt,
+            this.rotationVector.y * 0.1 * dt,
+            this.rotationVector.z * 0.1 * dt,
+            1,
+        ).normalize();
+
+        this.command_module.quaternion.multiply(this.tmpQuaternion);
+
+        //this.command_module.setRotationFromEuler()
+        //const rotationMatrix = this.physicsBody.getRotationMatrix();
+        //this.command_module.setRotationFromMatrix(rotationMatrix);
+        
+        //Navigation.update(rotationMatrix, this.SAS);
 
         //this.command_module.rotateX(this.rotation_input.x);
         //this.command_module.rotateZ(this.rotation_input.y);

@@ -19,22 +19,38 @@ export class PhysicsRotationBody {
         this.SAS = false;
     }
 
-    applyTorque(torque: THREE.Vector3) {
-        const rotatedTorque = torque.clone().applyEuler(this.orientation);
-        this.angularMomentum.add(rotatedTorque);
-    }
+    //applyTorque(torque: THREE.Vector3) {
+    //    const rotatedTorque = torque.clone().applyEuler(this.orientation);
+    //    this.angularMomentum.add(rotatedTorque);
+    //}
 
     setSAS(enabled: boolean) {
         this.SAS = enabled;
+    }
+
+    pitch_up() {
+        let up: THREE.Vector3 = new THREE.Vector3(0, 0, 0.1);
+        const quaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+
+        console.log("BEFORE TRANSFORM: X: " + up.x + " Y: " + up.y + " Z: " + up.z);
+        let upa: THREE.Vector3 = up.applyQuaternion(quaternion);
+        upa.x = Math.abs(upa.x) < 0.01 ? 0 : upa.x;
+        upa.y = Math.abs(upa.y) < 0.01 ? 0 : upa.y;
+        upa.z = Math.abs(upa.z) < 0.01 ? 0 : upa.z;
+        console.log("AFTER TRANSFORM: X: " + upa.x + " Y: " + upa.y + " Z: " + upa.z);
+
+        //let vecRot: THREE.Vector3 = this.eulerToVector(this.orientation);
+        //console.log("ORIENTATION: X: " + vecRot.x + " Y: " + vecRot.y + " Z: " + vecRot.z);
+        this.angularMomentum.add(up);
     }
 
     update(dt: number) {
         this.angularVelocity.x += (this.angularMomentum.x / this.inertiaTensor.x) * dt;
         this.angularVelocity.y += (this.angularMomentum.y / this.inertiaTensor.y) * dt;
         this.angularVelocity.z += (this.angularMomentum.z / this.inertiaTensor.z) * dt;
+        let vecRot: THREE.Vector3 = this.eulerToVector(this.orientation);
+        console.log("ORIENTATION: X: " + vecRot.x + " Y: " + vecRot.y + " Z: " + vecRot.z);
 
-        console.log("velocity: " + this.angularVelocity.z);
-        console.log("momentum: " + this.angularMomentum.z);
         if(this.SAS) {
             this.angularMomentum.x *= Math.pow(this.angularDamping, dt);
             this.angularVelocity.x *= Math.pow(this.angularDamping, dt);
@@ -55,5 +71,17 @@ export class PhysicsRotationBody {
         const rotationMatrix = new THREE.Matrix4();
         rotationMatrix.makeRotationFromEuler(this.orientation);
         return rotationMatrix;
+    }
+
+    eulerToVector(euler: THREE.Euler) {
+        const { x, y, z } = euler;
+    
+        // Calculate the components of the unit vector
+        const xComponent = Math.cos(y) * Math.cos(x);
+        const yComponent = Math.sin(y) * Math.cos(x);
+        const zComponent = Math.sin(x);
+    
+        // Create and return the vector
+        return new THREE.Vector3(xComponent, yComponent, zComponent).normalize();
     }
 }

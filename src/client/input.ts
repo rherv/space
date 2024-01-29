@@ -1,5 +1,5 @@
 interface Keys {
-    [key: string]: boolean;
+    [key: string]: number;
 }
 
 export namespace Input {
@@ -7,15 +7,15 @@ export namespace Input {
 
 
     export function onKeyDown(event: KeyboardEvent): void {
-        keys[event.key] = true;
+        keys[event.key] = 1;
     }
 
     export function onKeyup(event: KeyboardEvent): void {
-        keys[event.key] = false;
+        keys[event.key] = 0;
     }
 
-    export function getKey(key: string): boolean {
-        return keys[key] === undefined ? false : keys[key];
+    export function getKey(key: string): number {
+        return keys[key] === undefined ? 0 : keys[key];
     }
 
     document.addEventListener('keydown', onKeyDown);
