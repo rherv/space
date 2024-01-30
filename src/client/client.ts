@@ -7,8 +7,12 @@ import { Navigation } from './ui/navigation'
 const scene = new THREE.Scene()
 
 /* --- CAMERA --- */
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.z = 2
+camera.rotateX(1);
+//camera.rotateX(-90);
+//camera.rotateY(180);
+//camera.rotateZ()
 
 /* --- RENDERER --- */
 const renderer = new THREE.WebGLRenderer()
@@ -33,7 +37,7 @@ document.body.appendChild(renderer.domElement)
 var ambientLight = new THREE.AmbientLight(0xAA4040); // Soft white light
 scene.add(ambientLight);
 
-const controls = new OrbitControls(camera, renderer.domElement)
+//const controls = new OrbitControls(camera, renderer.domElement)
 
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
@@ -60,6 +64,7 @@ THREE.CubeReflectionMapping  // NOTE Bend "outwards"
 
 const playerShip = new PlayerShip();
 scene.add(playerShip.command_module);
+playerShip.command_module.add(camera);
 
 Navigation.render();
 
@@ -76,7 +81,7 @@ function animate() {
     const dt = clock.getDelta();
     playerShip.tick(dt);
 
-    controls.update()
+    //controls.update()
 
     render()
 }
