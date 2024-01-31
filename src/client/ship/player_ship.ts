@@ -7,6 +7,8 @@ interface Binds {
 }
 
 export class PlayerShip {
+    velocity: THREE.Vector3;
+    moveVector: THREE.Vector3;
     angularVelocity: THREE.Vector3;
     inertiaTensor: THREE.Vector3;
     rotation_input;
@@ -17,16 +19,26 @@ export class PlayerShip {
     tmpQuaternion: THREE.Quaternion;
     rotationVector: THREE.Vector3; // = new Vector3( 0, 0, 0 );
     angularDamping: number;
+    rotationSpeed: number;
+    blockPos: THREE.Vector3;
 
     SAS: boolean;
 
     constructor() {
+        /* rotation physics */
+        this.velocity = new THREE.Vector3(0,0,0);
+        this.moveVector = new THREE.Vector3(0,0,0);
         this.inertiaTensor = new THREE.Vector3(1, 1, 1);
         this.angularVelocity = new THREE.Vector3(0, 0, 0);
         this.rotation_input = { x: 0.0, y: 0.0, z: 0.0 };
         this.rotationVector = new THREE.Vector3(0, 0, 0);
         this.angularMomentum = new THREE.Vector3();
         this.angularDamping = 0.20;
+        this.rotationSpeed = 0.015;
+        this.controls = this.controls.bind(this)
+
+        /* 3d physics */
+        this.blockPos = new THREE.Vector3(0,0,0);
 
         this.geometry = new THREE.CylinderGeometry( 
             0.5, // radius top
@@ -47,28 +59,34 @@ export class PlayerShip {
         this.command_module.castShadow = true; //default is false
         this.command_module.receiveShadow = false; //default
 
-        this.SAS = false;
+        this.SAS = true;
 
-        this.controls = this.controls.bind(this)
         document.addEventListener("keydown", this.controls, false);
         document.addEventListener("keyup", this.controls, false);
     }
 
     controls() {
-        this.rotationVector.x = ( - Input.getKey("w") * 0.02 + Input.getKey("s") * 0.02 );
-        this.rotationVector.y = ( - Input.getKey("q") * 0.02 + Input.getKey("e") * 0.02 );
-        this.rotationVector.z = ( - Input.getKey("d") * 0.02 + Input.getKey("a") * 0.02 );
+        this.rotationVector.x = ( - Input.getKey("w") * this.rotationSpeed + Input.getKey("s") * this.rotationSpeed );
+        this.rotationVector.y = ( - Input.getKey("q") * this.rotationSpeed + Input.getKey("e") * this.rotationSpeed );
+        this.rotationVector.z = ( - Input.getKey("d") * this.rotationSpeed + Input.getKey("a") * this.rotationSpeed );
 
         if(Input.getKey("t")) {
             this.SAS = !this.SAS;
-            //this.physicsBody.setSAS(this.SAS)
         }
+
+        this.moveVector = new THREE.Vector3(0, 0.01, 0)
+            .applyQuaternion(this.command_module.quaternion)
+            .multiplyScalar(Input.getKey("c"))
     }
 
     tick(dt: number) {
         this.angularMomentum.add(
             this.rotationVector,
         )
+
+        this.velocity.x += this.moveVector.x;
+        this.velocity.y += this.moveVector.y;
+        this.velocity.z += this.moveVector.z;
 
         this.angularVelocity.x += (this.angularMomentum.x / this.inertiaTensor.x) * dt
         this.angularVelocity.y += (this.angularMomentum.y / this.inertiaTensor.y) * dt
@@ -93,5 +111,17 @@ export class PlayerShip {
         ).normalize();
 
         this.command_module.quaternion.multiply(this.tmpQuaternion);
+
+        Navigation.update(this.command_module.quaternion, this.SAS, this.command_module.position);
+
+        console.log("X: " + this.velocity.x);
+        console.log("Y: " + this.velocity.y);
+        console.log("Z: " + this.velocity.z);
+
+        this.command_module.position.x += this.velocity.x * dt;
+        this.command_module.position.y += this.velocity.y * dt;
+        this.command_module.position.z += this.velocity.z * dt;
+
+        // navigator.
     }
 }
