@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 export namespace Navigation {
+    /*
     const console_ui = document.createElement('div');
     console_ui.style.position = 'absolute';
     console_ui.style.top = '10px';
@@ -12,11 +13,13 @@ export namespace Navigation {
     console_ui.style.padding = "10px";
     console_ui.innerHTML = 'x: unknown<br>y: unknown<br>z: unknown<br>';
 
+    */
     export function render() {
-        document.body.appendChild(console_ui);
+        //document.body.appendChild(console_ui);
     }
 
     export function update(quaternion: THREE.Quaternion, SAS: boolean, pos: THREE.Vector3) {
+        /*
         const euler = new THREE.Euler().setFromQuaternion(quaternion);
 
         let sasColor = (SAS) ? 'green' : 'red';
@@ -27,5 +30,6 @@ export namespace Navigation {
             '<pre>' +
             'x: ' + pos.x.toFixed(2) + '<br>y: ' + pos.y.toFixed(2) + '<br>z: ' + pos.z.toFixed(2) + '<br>' +
             sasMessage
+            */
     }
 }

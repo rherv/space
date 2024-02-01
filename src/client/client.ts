@@ -5,42 +5,23 @@ import { Navigation } from './ui/navigation'
 import { Planet } from './planet/planet'
 import { App } from './app'
 
-App.start()
+App.init()
 
 /* --- Planet --- */
-const planet = new Planet();
+const planet = new Planet(1000);
+planet.planet.position.setX(2000)
 App.scene.add(planet.planet);
 
 /* -- Player Ship --- */
 const playerShip = new PlayerShip();
 App.scene.add(playerShip.command_module);
+//playerShip.command_module.add(App.camera);
+playerShip.setPlanet(planet);
+App.register(playerShip.tick.bind(playerShip));
+
+App.camera.position.set( 0, -6, 5 );
+App.camera.lookAt( 0, 20, 5 );
 playerShip.command_module.add(App.camera);
-
-window.addEventListener('resize', onWindowResize, false)
-function onWindowResize() {
-    App.camera.aspect = window.innerWidth / window.innerHeight
-    App.camera.updateProjectionMatrix()
-    App.renderer.setSize(window.innerWidth, window.innerHeight)
-    render()
-}
-
+App.start();
 
 Navigation.render();
-
-var clock = new THREE.Clock();
-// var speed = 16; // units a second
-
-function animate() {
-    requestAnimationFrame(animate)
-
-    const dt = clock.getDelta();
-    playerShip.tick(dt);
-
-    render()
-}
-
-function render() {
-    App.renderer.render(App.scene, App.camera);
-}
-
-animate()
